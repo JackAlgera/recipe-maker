@@ -6,7 +6,7 @@ export interface Recipe {
   created_at: string;
 }
 
-export interface Ingredients {
+export interface Ingredient {
   uuid: string;
   name: string;
   created_at: string;
