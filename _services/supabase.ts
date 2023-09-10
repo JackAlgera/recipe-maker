@@ -58,13 +58,27 @@ export const fetchRecipeWithIngredients = async (recipeUuid: string): Promise<Re
   } as Recipe;
 };
 
+export const createRecipe = async (name: string, description: string, user_id: string): Promise<RecipeDao> => {
+  const { data, error } = await supabase
+    .from('recipes')
+    .insert({ name: name, description: description, user_id: user_id } as RecipeDao)
+    .select()
+    .single();
+
+  if (error || !data) {
+    notFound();
+  }
+
+  return data as RecipeDao;
+}
+
 export const deleteRecipe = async (uuid: string): Promise<void> => {
   const { data, error } = await supabase
     .from('recipes')
     .delete()
     .eq('uuid', uuid);
 
-  if (error || !data) {
+  if (error) {
     notFound();
   }
 };
