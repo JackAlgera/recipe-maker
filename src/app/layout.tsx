@@ -1,7 +1,7 @@
 import './globals.css';
-import { Inter } from 'next/font/google';
-import { UserProvider } from '@auth0/nextjs-auth0/client';
+import { Providers } from '@/app/providers';
 import { NavBar } from '../../_components/navbar/nav-bar';
+import { Inter } from 'next/font/google'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -11,13 +11,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <UserProvider>
-        <body className={inter.className}>
+    <html lang='en' className='dark'>
+      <body className={inter.className}>
+        <Providers>
           <NavBar />
           {children}
-        </body>
-      </UserProvider>
+        </Providers>
+      </body>
     </html>
   )
 }

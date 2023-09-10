@@ -1,10 +1,10 @@
-import { Recipe } from '../../../_components/models/models';
+import { RecipeDao } from '../../../_components/models/models';
 import { useRouter } from 'next/navigation';
 import { FaTrashCan } from 'react-icons/fa6';
 import styles from './recipe-item.module.scss';
 
 export interface RecipeItemProps {
-  recipe: Recipe
+  recipe: RecipeDao
 }
 
 export const RecipeItem = (props: RecipeItemProps) => {

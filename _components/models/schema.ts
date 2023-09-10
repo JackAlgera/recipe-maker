@@ -27,9 +27,44 @@ export interface Database {
         }
         Relationships: []
       }
+      recipe_ingredients: {
+        Row: {
+          ingredient_uuid: string
+          quantity: number
+          recipe_uuid: string
+          unit: string
+        }
+        Insert: {
+          ingredient_uuid: string
+          quantity: number
+          recipe_uuid: string
+          unit: string
+        }
+        Update: {
+          ingredient_uuid?: string
+          quantity?: number
+          recipe_uuid?: string
+          unit?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipe_ingredients_ingredient_uuid_fkey"
+            columns: ["ingredient_uuid"]
+            referencedRelation: "ingredients"
+            referencedColumns: ["uuid"]
+          },
+          {
+            foreignKeyName: "recipe_ingredients_recipe_uuid_fkey"
+            columns: ["recipe_uuid"]
+            referencedRelation: "recipes"
+            referencedColumns: ["uuid"]
+          }
+        ]
+      }
       recipes: {
         Row: {
           created_at: string
+          description: string
           is_public: boolean
           name: string
           user_id: string
@@ -37,6 +72,7 @@ export interface Database {
         }
         Insert: {
           created_at?: string
+          description: string
           is_public?: boolean
           name: string
           user_id: string
@@ -44,6 +80,7 @@ export interface Database {
         }
         Update: {
           created_at?: string
+          description?: string
           is_public?: boolean
           name?: string
           user_id?: string

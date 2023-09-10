@@ -1,7 +1,7 @@
-import { Ingredient, Recipe } from '../../../_components/models/models';
+import { IngredientDao } from '../../../_components/models/models';
 
 export interface IngredientItemProps {
-  ingredient: Ingredient
+  ingredient: IngredientDao
 }
 
 export const IngredientItem = (props: IngredientItemProps) => {
