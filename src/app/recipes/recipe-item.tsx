@@ -1,9 +1,7 @@
 import { RecipeDao } from '../../../_components/models/models';
 import { useRouter } from 'next/navigation';
 import { Card, CardBody, CardFooter, CardHeader } from '@nextui-org/card';
-import { Button } from '@nextui-org/button';
-import { TbTrashXFilled } from 'react-icons/tb';
-import { IconContext } from 'react-icons';
+import { DeleteButton, EditButton } from '../../../_components/icons';
 
 export interface RecipeItemProps {
   recipe: RecipeDao;
@@ -16,22 +14,17 @@ export const RecipeItem = (props: RecipeItemProps) => {
   return (
     <Card>
       <CardHeader className="justify-between">
-        <Button onPress={() => router.push(`/recipes/${props.recipe.uuid}`)}>
-          <div>{props.recipe.name}</div>
-        </Button>
-        <Button isIconOnly color="danger" onClick={props.onDelete}>
-          <IconContext.Provider value={{ size: '1.5em' }}>
-            <div>
-              <TbTrashXFilled />
-            </div>
-          </IconContext.Provider>
-        </Button>
+        <div>{props.recipe.name}</div>
+        <div className="flex gap-1.5">
+          <EditButton onEdit={() => router.push(`/recipes/${props.recipe.uuid}`)}/>
+          <DeleteButton onDelete={props.onDelete} />
+        </div>
       </CardHeader>
       <CardBody>
         {props.recipe.description}
       </CardBody>
       <CardFooter>
-        {props.recipe.created_at}
+        Created on {new Date(props.recipe.created_at).toDateString()}
       </CardFooter>
     </Card>
   );
