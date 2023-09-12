@@ -18,7 +18,7 @@ export const NavigationBar = () => {
         name={user.name}
         description={user.email}
         avatarProps={{
-          src: user.picture
+          src: user.picture ?? ''
         }}
       />
     }

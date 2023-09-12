@@ -7,7 +7,7 @@ import { LockFilledIcon, MailIcon } from '@nextui-org/shared-icons';
 import { useState } from 'react';
 
 export interface RecipeModalProps {
-  onCreate: (string, string, string) => void;
+  onCreate: (name: string, description: string) => void;
 }
 
 export const RecipeModal = (props: RecipeModalProps) => {
@@ -16,7 +16,7 @@ export const RecipeModal = (props: RecipeModalProps) => {
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
-  const onSubmit = (onClose) => {
+  const onSubmit = (onClose: () => void) => {
     if (name && description) {
       props.onCreate(name, description);
       onClose();

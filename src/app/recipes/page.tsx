@@ -24,7 +24,7 @@ export default function Page() {
   }
 
   const onCreate = (name: string, description: string) => {
-    createRecipe(name, description, user!.email)
+    createRecipe(name, description, user!.email!)
       .then((recipe: RecipeDao) => setRecipes([...recipes, recipe]));
   }
 
