@@ -1,9 +1,7 @@
 import { Button } from '@nextui-org/button';
-import { IconContext } from 'react-icons';
-import { BsClipboard2PlusFill } from 'react-icons/bs';
 import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@nextui-org/modal';
-import { Checkbox, Input } from '@nextui-org/react';
-import { LockFilledIcon, MailIcon } from '@nextui-org/shared-icons';
+import { Input } from '@nextui-org/react';
+import { MailIcon } from '@nextui-org/shared-icons';
 import { useState } from 'react';
 import { CreateButton } from '../buttons';
 
@@ -66,11 +64,11 @@ export const RecipeModal = (props: RecipeModalProps) => {
                 />
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="flat" onPress={onClose}>
-                  Cancel
-                </Button>
                 <Button color="primary" type="button" onClick={() => onSubmit(onClose)}>
                   Create
+                </Button>
+                <Button color="danger" variant="flat" onPress={onClose}>
+                  Cancel
                 </Button>
               </ModalFooter>
             </form>

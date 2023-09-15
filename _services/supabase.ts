@@ -13,6 +13,10 @@ export const supabase = createClient<Database>(
   }
 );
 
+/* * * * * * * */
+/* Ingredients */
+/* * * * * * * */
+
 export const fetchRecipes = async (): Promise<RecipeDao[]> => {
   const { data, error } = await supabase
       .from('recipes')
@@ -23,6 +27,31 @@ export const fetchRecipes = async (): Promise<RecipeDao[]> => {
   }
 
   return data as RecipeDao[];
+};
+
+export const createRecipe = async (name: string, description: string, user_id: string): Promise<RecipeDao> => {
+  const { data, error } = await supabase
+    .from('recipes')
+    .insert({ name: name, description: description, user_id: user_id } as RecipeDao)
+    .select()
+    .single();
+
+  if (error || !data) {
+    notFound();
+  }
+
+  return data as RecipeDao;
+}
+
+export const deleteRecipe = async (uuid: string): Promise<void> => {
+  const { data, error } = await supabase
+    .from('recipes')
+    .delete()
+    .eq('uuid', uuid);
+
+  if (error) {
+    notFound();
+  }
 };
 
 export const fetchRecipeWithIngredients = async (recipeUuid: string): Promise<Recipe> => {
@@ -58,10 +87,32 @@ export const fetchRecipeWithIngredients = async (recipeUuid: string): Promise<Re
   } as Recipe;
 };
 
-export const createRecipe = async (name: string, description: string, user_id: string): Promise<RecipeDao> => {
+export const removeIngredientFromRecipe = async (recipeUuid: string, ingredientUuid: string): Promise<void> => {
+  const { error } = await supabase
+    .from('recipe_ingredients')
+    .delete()
+    .eq('recipe_uuid', recipeUuid)
+    .eq('ingredient_uuid', ingredientUuid);
+
+  if (error) {
+    notFound();
+  }
+};
+
+export const addIngredientToRecipe = async (
+  recipeUuid: string,
+  ingredient: IngredientDao,
+  quantity: number,
+  unit: string,
+): Promise<Ingredient> => {
   const { data, error } = await supabase
-    .from('recipes')
-    .insert({ name: name, description: description, user_id: user_id } as RecipeDao)
+    .from('recipe_ingredients')
+    .upsert({
+      recipe_uuid: recipeUuid,
+      ingredient_uuid: ingredient.uuid,
+      quantity: quantity,
+      unit: unit,
+    })
     .select()
     .single();
 
@@ -69,19 +120,18 @@ export const createRecipe = async (name: string, description: string, user_id: s
     notFound();
   }
 
-  return data as RecipeDao;
-}
-
-export const deleteRecipe = async (uuid: string): Promise<void> => {
-  const { data, error } = await supabase
-    .from('recipes')
-    .delete()
-    .eq('uuid', uuid);
-
-  if (error) {
-    notFound();
-  }
+  return {
+    name: ingredient.name,
+    uuid: data.ingredient_uuid,
+    quantity: data.quantity,
+    unit: data.unit,
+    created_at: ingredient.created_at
+  };
 };
+
+/* * * * * * * */
+/* Ingredients */
+/* * * * * * * */
 
 export const fetchAllIngredients = async (): Promise<IngredientDao[]> => {
   const { data, error } = await supabase
