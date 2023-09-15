@@ -1,7 +1,7 @@
 import { RecipeDao } from '../../../_components/models/models';
 import { useRouter } from 'next/navigation';
 import { Card, CardBody, CardFooter, CardHeader } from '@nextui-org/card';
-import { DeleteButton, EditButton } from '../../../_components/icons';
+import { DeleteButton, EditButton } from '../../../_components/buttons';
 
 export interface RecipeItemProps {
   recipe: RecipeDao;

@@ -95,10 +95,11 @@ export const fetchAllIngredients = async (): Promise<IngredientDao[]> => {
   return data as IngredientDao[];
 };
 
-export const createIngredient = async (ingredient: IngredientDao): Promise<IngredientDao> => {
+export const updateIngredient = async (ingredient: IngredientDao): Promise<IngredientDao> => {
   const { data, error } = await supabase
     .from('ingredients')
-    .insert(ingredient)
+    .update({ name: ingredient.name })
+    .eq('uuid', ingredient.uuid)
     .select()
     .single();
 
@@ -107,4 +108,29 @@ export const createIngredient = async (ingredient: IngredientDao): Promise<Ingre
   }
 
   return data as IngredientDao;
-}
+};
+
+export const createIngredient = async (name: string): Promise<IngredientDao> => {
+  const { data, error } = await supabase
+    .from('ingredients')
+    .insert({ name: name } as IngredientDao)
+    .select()
+    .single();
+
+  if (error || !data) {
+    notFound();
+  }
+
+  return data as IngredientDao;
+};
+
+export const deleteIngredient = async (uuid: string): Promise<void> => {
+  const { data, error } = await supabase
+    .from('ingredients')
+    .delete()
+    .eq('uuid', uuid);
+
+  if (error) {
+    notFound();
+  }
+};

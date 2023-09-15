@@ -5,30 +5,60 @@ import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure
 import { Checkbox, Input } from '@nextui-org/react';
 import { LockFilledIcon, MailIcon } from '@nextui-org/shared-icons';
 import { useState } from 'react';
-import { CreateButton } from '../buttons';
+import { CreateButton, EditButton } from '../buttons';
 
-export interface RecipeModalProps {
-  onCreate: (name: string, description: string) => void;
+export enum ActionType {
+  CREATE = 'Create',
+  UPDATE = 'Update'
 }
 
-export const RecipeModal = (props: RecipeModalProps) => {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+export interface IngredientModalProps {
+  initName?: string;
+  action: ActionType;
+  onPress: (name: string) => void;
+}
+
+export const IngredientModal = (props: IngredientModalProps) => {
+  const [name, setName] = useState(props.initName ?? '');
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const onSubmit = (onClose: () => void) => {
-    if (name && description) {
-      props.onCreate(name, description);
+    if (name) {
+      props.onPress(name);
       onClose();
-      setName('');
-      setDescription('');
+      switch (props.action) {
+        case ActionType.CREATE:
+          setName('');
+          break;
+        case ActionType.UPDATE:
+          setName(name);
+          break;
+      }
+    }
+  }
+
+  const title = () => {
+    switch (props.action) {
+      case ActionType.CREATE:
+        return 'New Ingredient';
+      case ActionType.UPDATE:
+        return 'Update Ingredient';
+    }
+  }
+
+  const actionButton = () => {
+    switch (props.action) {
+      case ActionType.CREATE:
+        return <CreateButton onCreate={onOpen} />
+      case ActionType.UPDATE:
+        return <EditButton onEdit={onOpen} />
     }
   }
 
   return (
     <>
-      <CreateButton onCreate={onOpen} />
+      {actionButton()}
       <Modal
         backdrop="blur"
         isOpen={isOpen}
@@ -36,41 +66,28 @@ export const RecipeModal = (props: RecipeModalProps) => {
         <ModalContent>
           {(onClose) => (
             <form>
-              <ModalHeader className="flex flex-col gap-1">New Recipe</ModalHeader>
+              <ModalHeader className="flex flex-col gap-1">{title()}</ModalHeader>
               <ModalBody>
                 <Input
                   autoFocus
                   endContent={
                     <MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
                   }
-                  label="Recipe"
-                  placeholder="Choose recipe name"
+                  label="Name"
+                  placeholder="Choose ingredient name"
                   variant="bordered"
                   isRequired
                   value={name}
                   isClearable
                   onChange={(event) => setName(event.target.value)}
                 />
-                <Input
-                  autoFocus
-                  endContent={
-                    <MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-                  }
-                  label="Description"
-                  placeholder="Description"
-                  variant="bordered"
-                  isRequired
-                  isClearable
-                  value={description}
-                  onChange={(event) => setDescription(event.target.value)}
-                />
               </ModalBody>
               <ModalFooter>
+                <Button color="primary" type="button" onClick={() => onSubmit(onClose)}>
+                  {props.action}
+                </Button>
                 <Button color="danger" variant="flat" onPress={onClose}>
                   Cancel
-                </Button>
-                <Button color="primary" type="button" onClick={() => onSubmit(onClose)}>
-                  Create
                 </Button>
               </ModalFooter>
             </form>
