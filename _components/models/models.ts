@@ -1,3 +1,13 @@
+export type Unit = 'g' | 'mL' | 'L' | 'mg' | 'kg' | null | undefined;
+
+export enum UnitE {
+  MILLIGRAM = 'mg',
+  GRAM = 'g',
+  KILOGRAM = 'kg',
+  MILLILITER = 'mL',
+  LITER = 'L'
+}
+
 export interface RecipeDao {
   uuid: string;
   name: string;
@@ -23,5 +33,5 @@ export interface Ingredient {
   name: string;
   created_at: string;
   quantity: number;
-  unit: string;
+  unit: Unit;
 }

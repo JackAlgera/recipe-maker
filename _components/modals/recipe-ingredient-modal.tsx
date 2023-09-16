@@ -1,34 +1,31 @@
-import { Button } from '@nextui-org/button';
-import { IconContext } from 'react-icons';
-import { BsClipboard2PlusFill } from 'react-icons/bs';
-import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@nextui-org/modal';
-import { Checkbox, Input, Select, SelectItem } from '@nextui-org/react';
-import { LockFilledIcon, MailIcon } from '@nextui-org/shared-icons';
+import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@nextui-org/modal';
+import { Select, SelectItem } from '@nextui-org/react';
 import { useState } from 'react';
-import { CreateButton, EditButton } from '../buttons';
-import { IngredientDao } from '../models/models';
+import { CreateButton } from '../inputs/buttons';
+import { IngredientDao, Unit, UnitE } from '../models/models';
+import { GenericModalFooter } from './generic-modal-footer';
+import { CustomInput } from '../inputs/inputs';
 
 export interface RecipeIngredientModalProps {
   initName?: string;
-  onPress: (ingredient: IngredientDao, quantity: number, unit: string) => void;
+  onPress: (ingredient: IngredientDao, quantity: number, unit: Unit) => void;
   availableIngredients: IngredientDao[];
 }
 
 export const RecipeIngredientModal = (props: RecipeIngredientModalProps) => {
   const [ingredientUuid, setIngredientUuid] = useState<string>('');
-  const [quantity, setQuantity] = useState('0');
+  const [quantity, setQuantity] = useState('');
   const [unit, setUnit] = useState('')
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const onSubmit = (onClose: () => void) => {
-    console.log(ingredientUuid, quantity, unit);
     if (ingredientUuid && quantity && unit) {
       props.onPress(
         props.availableIngredients
           .find((ingredient) => ingredient.uuid === ingredientUuid)!,
         parseInt(quantity),
-        unit
+        unit as Unit
       );
       onClose();
       setIngredientUuid('');
@@ -63,32 +60,27 @@ export const RecipeIngredientModal = (props: RecipeIngredientModalProps) => {
                       {ingredient.name}
                     </SelectItem>)}
                 </Select>
-                <Input
-                  label="Quantity"
-                  variant="bordered"
-                  isRequired
-                  type="number"
+                <CustomInput
+                  label='Quantity'
                   value={quantity}
-                  onChange={(event) => setQuantity(event.target.value)}
-                  aria-label='Quantity input'
-                />
-                <Input
+                  type='number'
+                  onChange={(event) => setQuantity(event.target.value)} />
+                <Select
+                  isRequired
                   label="Unit"
                   variant="bordered"
-                  isRequired
+                  fullWidth
+                  placeholder="Select unit"
                   value={unit}
                   onChange={(event) => setUnit(event.target.value)}
-                  aria-label='Unit input'
-                />
+                >
+                  {Object.values(UnitE).map((unit) =>
+                    <SelectItem aria-label={`Select ${unit}`} key={unit} value={unit}>
+                      {unit}
+                    </SelectItem>)}
+                </Select>
               </ModalBody>
-              <ModalFooter>
-                <Button color="primary" type="button" onClick={() => onSubmit(onClose)}>
-                  Add
-                </Button>
-                <Button color="danger" variant="flat" onPress={onClose}>
-                  Cancel
-                </Button>
-              </ModalFooter>
+              <GenericModalFooter createLabel='Add' onSubmit={onSubmit} onClose={onClose} />
             </form>
           )}
         </ModalContent>

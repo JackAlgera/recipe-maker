@@ -10,7 +10,7 @@ const BUTTON_SIZE = '1em';
 export const CreateButton = (props: { onCreate: () => void }) => {
   return (
     <Tooltip content="Create">
-      <Button size="sm" isIconOnly onPress={props.onCreate}>
+      <Button aria-label='Create button' size="sm" isIconOnly onPress={props.onCreate}>
         <IconContext.Provider value={{ size: BUTTON_SIZE }}>
           <div>
             <BsClipboard2PlusFill />
@@ -24,7 +24,7 @@ export const CreateButton = (props: { onCreate: () => void }) => {
 export const EditButton = (props: { onEdit: () => void }) => {
   return (
     <Tooltip content="Edit">
-      <Button size="sm" isIconOnly color="warning" onClick={props.onEdit}>
+      <Button aria-label='Edit button' size="sm" isIconOnly color="warning" onClick={props.onEdit}>
         <IconContext.Provider value={{ size: BUTTON_SIZE }}>
           <div>
             <AiTwotoneEdit />
@@ -38,7 +38,7 @@ export const EditButton = (props: { onEdit: () => void }) => {
 export const DeleteButton = (props: { onDelete: () => void }) => {
   return (
     <Tooltip color="danger" content="Delete">
-      <Button size="sm" isIconOnly color="danger" onClick={props.onDelete}>
+      <Button aria-label='Delete button' size="sm" isIconOnly color="danger" onClick={props.onDelete}>
         <IconContext.Provider value={{ size: BUTTON_SIZE }}>
           <div>
             <TbTrashXFilled />

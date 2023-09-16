@@ -1,45 +1,67 @@
 'use client';
 
 import { createIngredient, deleteIngredient, fetchAllIngredients, updateIngredient } from '../../../_services/supabase';
-import { useEffect, useState } from 'react';
+import React from 'react';
 import { IngredientDao } from '../../../_components/models/models';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import { ActionType, IngredientModal } from '../../../_components/modals/ingredient-modal';
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
-import { DeleteButton } from '../../../_components/buttons';
+import { DeleteButton } from '../../../_components/inputs/buttons';
+import { useAsyncList } from 'react-stately';
 
 const COLUMN_SIZE = 200;
 
 export default function Page() {
-  const [ingredients, setIngredients] = useState<IngredientDao[]>([]);
   const { user, error, isLoading } = useUser();
 
-  useEffect(() => {
-    fetchAllIngredients().then((ingredients: IngredientDao[]) => setIngredients(ingredients));
-  }, []);
-
-  const onDelete = (ingredientUuid: string) => {
-    deleteIngredient(ingredientUuid)
-      .then(() => {
-        setIngredients([...ingredients.filter((i) => i.uuid !== ingredientUuid)]);
-      })
-      .catch(() => console.log('Oh no, something went wrong'));
-  }
+  let list = useAsyncList<IngredientDao>({
+    async load() {
+      return { items: await fetchAllIngredients() };
+    },
+    sort({ items, sortDescriptor }) {
+      return {
+        items: items.sort((a, b) => {
+          return a.name.localeCompare(b.name) * (sortDescriptor.direction === 'ascending' ? -1 : 1);
+        })
+      };
+    },
+    getKey: item => item.uuid,
+  });
 
   const onCreate = (name: string) => {
     createIngredient(name)
-      .then((ingredient: IngredientDao) => setIngredients([...ingredients, ingredient]));
+      .then((ingredient: IngredientDao) => list.append(ingredient));
   }
 
-  const onUpdate = (ingredient: IngredientDao) => {
-    updateIngredient(ingredient)
-      .then((ingredient: IngredientDao) => {
-        const newIngredients = [...ingredients];
-        const index = newIngredients.findIndex((ingre) => ingre.uuid === ingredient.uuid);
-        newIngredients[index] = ingredient;
-        setIngredients(newIngredients);
-      });
-  }
+  const renderCell = React.useCallback((ingredient: IngredientDao, columnKey: React.Key) => {
+    const onUpdate = (ingredient: IngredientDao) => {
+      updateIngredient(ingredient)
+        .then((newValue: IngredientDao) => list.update(newValue.uuid, newValue));
+    }
+
+    const onDelete = (ingredientUuid: string) => {
+      deleteIngredient(ingredientUuid)
+        .then(() => list.remove(ingredientUuid))
+        .catch(() => console.log('Oh no, something went wrong'));
+    }
+
+    switch (columnKey) {
+      case 'name':
+        return <>{ingredient.name}</>;
+      case 'actions':
+        return (
+          <div className="flex gap-1.5">
+            <IngredientModal
+              action={ActionType.UPDATE}
+              initName={ingredient.name}
+              onPress={(name: string) => onUpdate({ ...ingredient, name: name })} />
+            <DeleteButton onDelete={() => onDelete(ingredient.uuid)} />
+          </div>
+        );
+      default:
+        return <></>;
+    }
+  }, [list]);
 
   return (
     <main>
@@ -49,26 +71,19 @@ export default function Page() {
             <p className='m-4 text-2xl'>Ingredients</p>
             {user && <IngredientModal action={ActionType.CREATE} onPress={onCreate} />}
           </div>
-          <Table isStriped fullWidth={false}>
+          <Table
+            onSortChange={list.sort}
+            sortDescriptor={list.sortDescriptor}
+            aria-label='Table ingredients'
+            fullWidth={false}>
             <TableHeader>
-              <TableColumn width={COLUMN_SIZE}>#</TableColumn>
-              <TableColumn width={COLUMN_SIZE * 2}>Name</TableColumn>
-              <TableColumn width={COLUMN_SIZE}>Actions</TableColumn>
+              <TableColumn key='name' allowsSorting width={COLUMN_SIZE * 2}>Name</TableColumn>
+              <TableColumn key='actions' width={COLUMN_SIZE}>Actions</TableColumn>
             </TableHeader>
-            <TableBody>
-              {ingredients.sort((a, b) => a.name.localeCompare(b.name)).map((ingredient, index) =>
-                <TableRow key={index}>
-                  <TableCell>{index}</TableCell>
-                  <TableCell>{ingredient.name}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-1.5">
-                      <IngredientModal
-                        action={ActionType.UPDATE}
-                        initName={ingredient.name}
-                        onPress={(name: string) => onUpdate({ ...ingredient, name: name })} />
-                      <DeleteButton onDelete={() => onDelete(ingredient.uuid)} />
-                    </div>
-                  </TableCell>
+            <TableBody items={list.items}>
+              {(item) => (
+                <TableRow key={item.name}>
+                  {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
                 </TableRow>
               )}
             </TableBody>

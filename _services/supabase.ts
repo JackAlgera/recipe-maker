@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '../_components/models/schema';
 import { notFound } from 'next/navigation';
-import { Ingredient, IngredientDao, Recipe, RecipeDao } from '../_components/models/models';
+import { Ingredient, IngredientDao, Recipe, RecipeDao, Unit } from '../_components/models/models';
 
 export const supabase = createClient<Database>(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -103,7 +103,7 @@ export const addIngredientToRecipe = async (
   recipeUuid: string,
   ingredient: IngredientDao,
   quantity: number,
-  unit: string,
+  unit: Unit,
 ): Promise<Ingredient> => {
   const { data, error } = await supabase
     .from('recipe_ingredients')
@@ -121,10 +121,10 @@ export const addIngredientToRecipe = async (
   }
 
   return {
-    name: ingredient.name,
     uuid: data.ingredient_uuid,
-    quantity: data.quantity,
+    name: ingredient.name,
     unit: data.unit,
+    quantity: data.quantity,
     created_at: ingredient.created_at
   };
 };
@@ -136,7 +136,8 @@ export const addIngredientToRecipe = async (
 export const fetchAllIngredients = async (): Promise<IngredientDao[]> => {
   const { data, error } = await supabase
     .from('ingredients')
-    .select('*');
+    .select('*')
+    .order('name', { ascending: true });
 
   if (error || !data) {
     notFound();

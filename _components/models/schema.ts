@@ -32,19 +32,19 @@ export interface Database {
           ingredient_uuid: string
           quantity: number
           recipe_uuid: string
-          unit: string
+          unit: Database["public"]["Enums"]["unit_type"] | null
         }
         Insert: {
           ingredient_uuid: string
           quantity: number
           recipe_uuid: string
-          unit: string
+          unit?: Database["public"]["Enums"]["unit_type"] | null
         }
         Update: {
           ingredient_uuid?: string
           quantity?: number
           recipe_uuid?: string
-          unit?: string
+          unit?: Database["public"]["Enums"]["unit_type"] | null
         }
         Relationships: [
           {
@@ -96,7 +96,7 @@ export interface Database {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      unit_type: "L" | "mL" | "g" | "mg" | "kg"
     }
     CompositeTypes: {
       [_ in never]: never

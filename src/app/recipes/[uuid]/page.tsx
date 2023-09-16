@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { IngredientDao, Recipe } from '../../../../_components/models/models';
+import React, { useEffect, useState } from 'react';
+import { Ingredient, IngredientDao, RecipeDao, Unit } from '../../../../_components/models/models';
 import {
   addIngredientToRecipe,
   fetchAllIngredients,
@@ -9,50 +9,65 @@ import {
   removeIngredientFromRecipe
 } from '../../../../_services/supabase';
 import { Card, CardBody, CardFooter, CardHeader } from '@nextui-org/card';
-import { DeleteButton } from '../../../../_components/buttons';
+import { DeleteButton } from '../../../../_components/inputs/buttons';
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
 import { RecipeIngredientModal } from '../../../../_components/modals/recipe-ingredient-modal';
+import { useAsyncList } from 'react-stately';
 
 const COLUMN_SIZE = 200;
 
 export default function Page({ params }: { params: { uuid: string }}) {
-  const [recipe, setRecipe] = useState<Recipe>();
+  const [recipe, setRecipe] = useState<RecipeDao>();
   const [allIngredients, setAllIngredients] = useState<IngredientDao[]>([]);
 
-  useEffect(() => {
-    fetchRecipeWithIngredients(params.uuid).then((recipe: Recipe) => {
-      setRecipe(recipe);
-    });
-  }, [params.uuid]);
+  let ingredientsList = useAsyncList<Ingredient>({
+    async load() {
+        const newRecipe = await fetchRecipeWithIngredients(params.uuid);
+        setRecipe(newRecipe.recipe);
+        return { items: newRecipe.ingredients };
+    },
+    sort({ items, sortDescriptor }) {
+      return {
+        items: items.sort((a, b) => {
+          return a.name.localeCompare(b.name) * (sortDescriptor.direction === 'ascending' ? -1 : 1);
+        })
+      };
+    },
+    getKey: item => item.uuid,
+  });
 
   useEffect(() => {
     fetchAllIngredients().then((ingredients) => setAllIngredients(ingredients));
   }, []);
 
-  const onDeleteIngredient = (ingredientUuid: string) => {
+  const onAddIngredient = (ingredient: IngredientDao, quantity: number, unit: Unit) => {
     if (!recipe) return;
 
-    console.log('trying to delete recipe ', recipe.recipe.uuid, 'ingredien ', ingredientUuid);
-    removeIngredientFromRecipe(recipe.recipe.uuid, ingredientUuid)
-      .then(() => setRecipe({
-          ...recipe,
-          ingredients: [...recipe.ingredients.filter(i => i.uuid !== ingredientUuid)]
-        }))
-      .catch(() => console.log('Oh no, something went wrong'));
-  }
-
-  const onAddIngredient = (ingredient: IngredientDao, quantity: number, unit: string) => {
-    if (!recipe) return;
-
-    addIngredientToRecipe(recipe.recipe.uuid, ingredient, quantity, unit)
-      .then((ingredient) => setRecipe({
-          ...recipe,
-          ingredients: [...recipe.ingredients, ingredient]
-        }))
+    addIngredientToRecipe(recipe.uuid, ingredient, quantity, unit)
+      .then((addedIngredient) => ingredientsList.append(addedIngredient))
       .catch(() => console.log('Oh no, something went wrong'));
   };
 
-  console.log('yop', recipe?.ingredients);
+  const renderCell = React.useCallback((ingredient: Ingredient, columnKey: React.Key) => {
+    const onDeleteIngredient = (ingredientUuid: string) => {
+      if (!recipe) return;
+
+      removeIngredientFromRecipe(recipe.uuid, ingredientUuid)
+        .then(() => ingredientsList.remove(ingredientUuid))
+        .catch(() => console.log('Oh no, something went wrong'));
+    }
+
+    switch (columnKey) {
+      case 'name':
+        return <>{ingredient.name}</>;
+      case 'quantity':
+        return <>{ingredient.quantity} {ingredient.unit}</>
+      case 'actions':
+        return <DeleteButton onDelete={() => onDeleteIngredient(ingredient.uuid)} />;
+      default:
+        return <></>;
+    }
+  }, [ingredientsList, recipe]);
 
   return (
     <main className='flex gap-2 m-3'>
@@ -60,13 +75,13 @@ export default function Page({ params }: { params: { uuid: string }}) {
         {recipe &&
           <>
             <CardHeader className="justify-between">
-              <div>{recipe.recipe.name}</div>
+              <div>{recipe.name}</div>
                 <div className="flex gap-1.5">
                     {/*<CreateButton onDelete={props.onDelete} />*/}
                 </div>
             </CardHeader>
             <CardBody>
-              {recipe.recipe.description}
+              {recipe.description}
             </CardBody>
             <CardFooter>
               {/*Created on {new Date(recipe.created_at).toDateString()}*/}
@@ -77,32 +92,24 @@ export default function Page({ params }: { params: { uuid: string }}) {
       <Card className='flex w-3/4'>
         <CardHeader className="flex gap-2">
           <p>Ingredients</p>
-          {recipe &&
-            <RecipeIngredientModal
+          {recipe && <RecipeIngredientModal
               onPress={onAddIngredient}
               availableIngredients={allIngredients
-                .filter((a) =>
-                  recipe.ingredients.findIndex((b) => b.uuid === a.uuid) === -1)}
-            />
-          }
+                .filter((a) => ingredientsList
+                  .items.findIndex((b) => b.uuid === a.uuid) === -1)}
+          />}
         </CardHeader>
         <CardBody> {recipe &&
           <Table fullWidth={false}>
             <TableHeader>
-              <TableColumn width={COLUMN_SIZE}>#</TableColumn>
-              <TableColumn width={COLUMN_SIZE * 2}>Name</TableColumn>
-              <TableColumn width={COLUMN_SIZE * 2}>Quantity</TableColumn>
-              <TableColumn width={COLUMN_SIZE}>Actions</TableColumn>
+              <TableColumn key='name' width={COLUMN_SIZE * 2}>Name</TableColumn>
+              <TableColumn key='quantity' width={COLUMN_SIZE * 2}>Quantity</TableColumn>
+              <TableColumn key='actions' width={COLUMN_SIZE}>Actions</TableColumn>
             </TableHeader>
-            <TableBody>
-              {recipe.ingredients.sort((a, b) => a.name.localeCompare(b.name)).map((ingredient, index) =>
-                <TableRow key={index}>
-                  <TableCell>{index}</TableCell>
-                  <TableCell>{ingredient.name}</TableCell>
-                  <TableCell>{ingredient.quantity} {ingredient.unit}</TableCell>
-                  <TableCell>
-                    <DeleteButton onDelete={() => onDeleteIngredient(ingredient.uuid)} />
-                  </TableCell>
+            <TableBody items={ingredientsList.items}>
+              {(item) => (
+                <TableRow key={item.name}>
+                  {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
                 </TableRow>
               )}
             </TableBody>

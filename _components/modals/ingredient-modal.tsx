@@ -1,11 +1,8 @@
-import { Button } from '@nextui-org/button';
-import { IconContext } from 'react-icons';
-import { BsClipboard2PlusFill } from 'react-icons/bs';
-import { Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@nextui-org/modal';
-import { Checkbox, Input } from '@nextui-org/react';
-import { LockFilledIcon, MailIcon } from '@nextui-org/shared-icons';
+import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@nextui-org/modal';
 import { useState } from 'react';
-import { CreateButton, EditButton } from '../buttons';
+import { CreateButton, EditButton } from '../inputs/buttons';
+import { GenericModalFooter } from './generic-modal-footer';
+import { CustomInput } from '../inputs/inputs';
 
 export enum ActionType {
   CREATE = 'Create',
@@ -68,28 +65,13 @@ export const IngredientModal = (props: IngredientModalProps) => {
             <form>
               <ModalHeader className="flex flex-col gap-1">{title()}</ModalHeader>
               <ModalBody>
-                <Input
-                  autoFocus
-                  endContent={
-                    <MailIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-                  }
-                  label="Name"
-                  placeholder="Choose ingredient name"
-                  variant="bordered"
-                  isRequired
+                <CustomInput
+                  label='Name'
+                  placeholder='Choose ingredient name'
                   value={name}
-                  isClearable
-                  onChange={(event) => setName(event.target.value)}
-                />
+                  onChange={(event) => setName(event.target.value)} />
               </ModalBody>
-              <ModalFooter>
-                <Button color="primary" type="button" onClick={() => onSubmit(onClose)}>
-                  {props.action}
-                </Button>
-                <Button color="danger" variant="flat" onPress={onClose}>
-                  Cancel
-                </Button>
-              </ModalFooter>
+              <GenericModalFooter createLabel={props.action} onSubmit={onSubmit} onClose={onClose} />
             </form>
           )}
         </ModalContent>
