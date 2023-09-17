@@ -50,7 +50,7 @@ export default function Page() {
         return <>{ingredient.name}</>;
       case 'actions':
         return (
-          <div className="flex gap-1.5">
+          <div className="flex">
             <IngredientModal
               action={ActionType.UPDATE}
               initName={ingredient.name}

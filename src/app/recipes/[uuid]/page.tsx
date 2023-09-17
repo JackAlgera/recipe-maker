@@ -8,11 +8,12 @@ import {
   fetchRecipeWithIngredients,
   removeIngredientFromRecipe
 } from '../../../../_services/supabase';
-import { Card, CardBody, CardFooter, CardHeader } from '@nextui-org/card';
+import { Card, CardBody, CardHeader } from '@nextui-org/card';
 import { DeleteButton } from '../../../../_components/inputs/buttons';
-import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
+import { Divider, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
 import { RecipeIngredientModal } from '../../../../_components/modals/recipe-ingredient-modal';
 import { useAsyncList } from 'react-stately';
+import { RecipeItem } from '@/app/recipes/recipe-item';
 
 const COLUMN_SIZE = 200;
 
@@ -70,52 +71,40 @@ export default function Page({ params }: { params: { uuid: string }}) {
   }, [ingredientsList, recipe]);
 
   return (
-    <main className='flex gap-2 m-3'>
-      <Card className='flex w-1/4'>
-        {recipe &&
-          <>
-            <CardHeader className="justify-between">
-              <div>{recipe.name}</div>
-                <div className="flex gap-1.5">
-                    {/*<CreateButton onDelete={props.onDelete} />*/}
-                </div>
-            </CardHeader>
-            <CardBody>
-              {recipe.description}
-            </CardBody>
-            <CardFooter>
-              {/*Created on {new Date(recipe.created_at).toDateString()}*/}
-            </CardFooter>
-          </>
-        }
-      </Card>
-      <Card className='flex w-3/4'>
-        <CardHeader className="flex gap-2">
-          <p>Ingredients</p>
-          {recipe && <RecipeIngredientModal
-              onPress={onAddIngredient}
-              availableIngredients={allIngredients
-                .filter((a) => ingredientsList
-                  .items.findIndex((b) => b.uuid === a.uuid) === -1)}
-          />}
-        </CardHeader>
-        <CardBody> {recipe &&
-          <Table fullWidth={false}>
-            <TableHeader>
-              <TableColumn key='name' width={COLUMN_SIZE * 2}>Name</TableColumn>
-              <TableColumn key='quantity' width={COLUMN_SIZE * 2}>Quantity</TableColumn>
-              <TableColumn key='actions' width={COLUMN_SIZE}>Actions</TableColumn>
-            </TableHeader>
-            <TableBody items={ingredientsList.items}>
-              {(item) => (
-                <TableRow key={item.name}>
-                  {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>}
-        </CardBody>
-      </Card>
+    <main className='flex m-3 justify-center'>
+      <div className='flex gap-4 w-5/6'>
+        <div className="w-1/3">
+          {recipe && <RecipeItem recipe={recipe} />}
+        </div>
+        <Card className='flex w-2/3'>
+          <CardHeader className="flex gap-2">
+            <p>Ingredients</p>
+            {recipe && <RecipeIngredientModal
+                onPress={onAddIngredient}
+                availableIngredients={allIngredients
+                  .filter((a) => ingredientsList
+                    .items.findIndex((b) => b.uuid === a.uuid) === -1)}
+            />}
+          </CardHeader>
+          <Divider />
+          <CardBody className="p-0"> {recipe &&
+            <Table fullWidth={false}>
+              <TableHeader>
+                <TableColumn key='name' width={COLUMN_SIZE * 2}>Name</TableColumn>
+                <TableColumn key='quantity' width={COLUMN_SIZE * 2}>Quantity</TableColumn>
+                <TableColumn key='actions' width={COLUMN_SIZE}>Actions</TableColumn>
+              </TableHeader>
+              <TableBody items={ingredientsList.items}>
+                {(item) => (
+                  <TableRow key={item.name}>
+                    {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>}
+          </CardBody>
+        </Card>
+      </div>
     </main>
   )
 }
