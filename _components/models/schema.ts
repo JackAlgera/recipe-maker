@@ -13,19 +13,19 @@ export interface Database {
         Row: {
           created_at: string
           name: string
-          unit: Database["public"]["Enums"]["unit_type"]
+          unit: Database['public']['Enums']['unit_type'] | null
           uuid: string
         }
         Insert: {
           created_at?: string
           name: string
-          unit?: Database["public"]["Enums"]["unit_type"]
+          unit?: Database['public']['Enums']['unit_type'] | null
           uuid?: string
         }
         Update: {
           created_at?: string
           name?: string
-          unit?: Database["public"]["Enums"]["unit_type"]
+          unit?: Database['public']['Enums']['unit_type'] | null
           uuid?: string
         }
         Relationships: []
@@ -54,10 +54,10 @@ export interface Database {
         }
         Relationships: [
           {
-            foreignKeyName: "planned_recipes_recipe_uuid_fkey"
-            columns: ["recipe_uuid"]
-            referencedRelation: "recipes"
-            referencedColumns: ["uuid"]
+            foreignKeyName: 'planned_recipes_recipe_uuid_fkey'
+            columns: ['recipe_uuid']
+            referencedRelation: 'recipes'
+            referencedColumns: ['uuid']
           }
         ]
       }
@@ -79,16 +79,16 @@ export interface Database {
         }
         Relationships: [
           {
-            foreignKeyName: "recipe_ingredients_ingredient_uuid_fkey"
-            columns: ["ingredient_uuid"]
-            referencedRelation: "ingredients"
-            referencedColumns: ["uuid"]
+            foreignKeyName: 'recipe_ingredients_ingredient_uuid_fkey'
+            columns: ['ingredient_uuid']
+            referencedRelation: 'ingredients'
+            referencedColumns: ['uuid']
           },
           {
-            foreignKeyName: "recipe_ingredients_recipe_uuid_fkey"
-            columns: ["recipe_uuid"]
-            referencedRelation: "recipes"
-            referencedColumns: ["uuid"]
+            foreignKeyName: 'recipe_ingredients_recipe_uuid_fkey'
+            columns: ['recipe_uuid']
+            referencedRelation: 'recipes'
+            referencedColumns: ['uuid']
           }
         ]
       }
@@ -127,7 +127,7 @@ export interface Database {
       [_ in never]: never
     }
     Enums: {
-      unit_type: "mL" | "g" | "x"
+      unit_type: 'mL' | 'g'
     }
     CompositeTypes: {
       [_ in never]: never

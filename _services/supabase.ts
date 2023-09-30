@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '../_components/models/schema';
 import { notFound } from 'next/navigation';
-import { Ingredient, IngredientDao, Recipe, RecipeDao, Unit } from '../_components/models/models';
+import { Ingredient, IngredientDao, PlannedRecipe, Recipe, RecipeDao, Unit } from '../_components/models/models';
 
 export const supabase = createClient<Database>(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -58,7 +58,7 @@ export const fetchRecipeWithIngredients = async (recipeUuid: string): Promise<Re
   const { data, error } = await supabase
     .from('recipes')
     .select(`*,
-      ingredients:ingredients (*, quantity:recipe_ingredients(quantity), unit:recipe_ingredients(unit))`)
+      ingredients:ingredients(*, quantity:recipe_ingredients(quantity))`)
     .eq('uuid', recipeUuid)
     .single();
 
@@ -67,23 +67,13 @@ export const fetchRecipeWithIngredients = async (recipeUuid: string): Promise<Re
   }
 
   return {
-    recipe: {
-      name: data.name,
-      uuid: data.uuid,
-      description: data.description,
-      created_at: data.created_at,
-      is_public: data.is_public,
-      user_id: data.user_id
-    },
-    ingredients: data.ingredients.map((d) => {
-      return {
-        name: d.name,
-        uuid: d.uuid,
-        created_at: d.created_at,
-        quantity: d.quantity[0].quantity,
-        unit: d.unit[0].unit
-      } as Ingredient
-    }),
+    name: data.name,
+    uuid: data.uuid,
+    description: data.description,
+    created_at: data.created_at,
+    is_public: data.is_public,
+    user_id: data.user_id,
+    ingredients: mapIngredients(data.ingredients),
   } as Recipe;
 };
 
@@ -102,16 +92,14 @@ export const removeIngredientFromRecipe = async (recipeUuid: string, ingredientU
 export const addIngredientToRecipe = async (
   recipeUuid: string,
   ingredient: IngredientDao,
-  quantity: number,
-  unit: Unit,
+  quantity: number
 ): Promise<Ingredient> => {
   const { data, error } = await supabase
     .from('recipe_ingredients')
     .upsert({
       recipe_uuid: recipeUuid,
       ingredient_uuid: ingredient.uuid,
-      quantity: quantity,
-      unit: unit,
+      quantity: quantity
     })
     .select()
     .single();
@@ -123,9 +111,9 @@ export const addIngredientToRecipe = async (
   return {
     uuid: data.ingredient_uuid,
     name: ingredient.name,
-    unit: data.unit,
     quantity: data.quantity,
-    created_at: ingredient.created_at
+    created_at: ingredient.created_at,
+    unit: ingredient.unit
   };
 };
 
@@ -149,11 +137,10 @@ export const fetchAllIngredients = async (): Promise<IngredientDao[]> => {
 export const updateIngredient = async (ingredient: IngredientDao): Promise<IngredientDao> => {
   const { data, error } = await supabase
     .from('ingredients')
-    .update({ name: ingredient.name })
+    .update({ name: ingredient.name, unit: ingredient.unit })
     .eq('uuid', ingredient.uuid)
     .select()
     .single();
-
   if (error || !data) {
     notFound();
   }
@@ -161,10 +148,10 @@ export const updateIngredient = async (ingredient: IngredientDao): Promise<Ingre
   return data as IngredientDao;
 };
 
-export const createIngredient = async (name: string): Promise<IngredientDao> => {
+export const createIngredient = async (name: string, unit: Unit): Promise<IngredientDao> => {
   const { data, error } = await supabase
     .from('ingredients')
-    .insert({ name: name } as IngredientDao)
+    .insert({ name: name, unit: unit } as IngredientDao)
     .select()
     .single();
 
@@ -184,4 +171,52 @@ export const deleteIngredient = async (uuid: string): Promise<void> => {
   if (error) {
     notFound();
   }
+};
+
+/* * * * * * * * * */
+/* Planned recipes */
+/* * * * * * * * * */
+
+export const fetchPlannedRecipes = async (userId: string): Promise<PlannedRecipe[]> => {
+  const { data, error } = await supabase
+    .from('planned_recipes')
+    .select(`*,
+      recipe:recipes(*, ingredients:ingredients(*, quantity:recipe_ingredients(quantity)))`)
+    .eq('user_id', userId);
+
+  if (error || !data) {
+    notFound();
+  }
+
+  return data.map(d  => {
+    return {
+      is_public: d.recipe!.is_public,
+      created_at: d.recipe!.created_at,
+      description: d.recipe!.description,
+      name: d.recipe!.name,
+      uuid: d.recipe!.uuid,
+      is_done: d.is_done,
+      times: d.times,
+      user_id: d.user_id,
+      ingredients: mapIngredients(d.recipe!.ingredients)
+    } as PlannedRecipe
+  });
+};
+
+const mapIngredients = (data: {
+  name: string,
+  uuid: string,
+  created_at: string,
+  quantity: { quantity: number }[],
+  unit: Unit
+}[]): Ingredient[] => {
+  return data.map((d) => {
+    return {
+      name: d.name,
+      uuid: d.uuid,
+      created_at: d.created_at,
+      quantity: d.quantity[0].quantity,
+      unit: d.unit ? d.unit[0] : null
+    } as Ingredient
+  });
 };

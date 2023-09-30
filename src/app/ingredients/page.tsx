@@ -2,7 +2,7 @@
 
 import { createIngredient, deleteIngredient, fetchAllIngredients, updateIngredient } from '../../../_services/supabase';
 import React from 'react';
-import { IngredientDao } from '../../../_components/models/models';
+import { IngredientDao, Unit } from '../../../_components/models/models';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import { ActionType, IngredientModal } from '../../../_components/modals/ingredient-modal';
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
@@ -28,7 +28,7 @@ export default function Page() {
     getKey: item => item.uuid,
   });
 
-  const onCreate = (name: string, unit: string) => {
+  const onCreate = (name: string, unit: Unit) => {
     createIngredient(name, unit)
       .then((ingredient: IngredientDao) => list.append(ingredient));
   }
@@ -57,7 +57,7 @@ export default function Page() {
               action={ActionType.UPDATE}
               initName={ingredient.name}
               initUnit={ingredient.unit}
-              onPress={(name: string, unit: string) => onUpdate({ ...ingredient, name: name, unit: unit })} />
+              onPress={(name: string, unit: Unit) => onUpdate({ ...ingredient, name: name, unit: unit })} />
             <DeleteButton onDelete={() => onDelete(ingredient.uuid)} />
           </div>
         );

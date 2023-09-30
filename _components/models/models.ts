@@ -1,8 +1,20 @@
 export const UNITS = [
   'mL',
   'g',
-  'x'
+  ''
 ];
+
+export type Unit = 'g' | 'mL' | undefined | null;
+
+export const fromUnit = (unit: Unit) => {
+  if (unit == undefined) {
+    return '';
+  }
+
+  return unit as string;
+};
+
+export const toUnit = (unit: String | undefined | null): Unit => unit as Unit;
 
 export interface RecipeDao {
   uuid: string;
@@ -21,7 +33,7 @@ export interface IngredientDao {
   uuid: string;
   name: string;
   created_at: string;
-  unit: string;
+  unit: Unit;
 }
 
 export interface Ingredient extends IngredientDao {

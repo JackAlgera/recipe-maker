@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Ingredient, IngredientDao, RecipeDao, Unit } from '../../../../_components/models/models';
+import { Ingredient, IngredientDao, RecipeDao } from '../../../../_components/models/models';
 import {
   addIngredientToRecipe,
   fetchAllIngredients,
@@ -41,10 +41,10 @@ export default function Page({ params }: { params: { uuid: string }}) {
     fetchAllIngredients().then((ingredients) => setAllIngredients(ingredients));
   }, []);
 
-  const onAddIngredient = (ingredient: IngredientDao, quantity: number, unit: Unit) => {
+  const onAddIngredient = (ingredient: IngredientDao, quantity: number) => {
     if (!recipe) return;
 
-    addIngredientToRecipe(recipe.uuid, ingredient, quantity, unit)
+    addIngredientToRecipe(recipe.uuid, ingredient, quantity)
       .then((addedIngredient) => ingredientsList.append(addedIngredient))
       .catch(() => console.log('Oh no, something went wrong'));
   };

@@ -4,7 +4,7 @@ import { CreateButton, EditButton } from '../inputs/buttons';
 import { GenericModalFooter } from './generic-modal-footer';
 import { CustomInput } from '../inputs/inputs';
 import { Select, SelectItem } from '@nextui-org/react';
-import { UNITS } from '../models/models';
+import { fromUnit, toUnit, Unit, UNITS } from '../models/models';
 
 export enum ActionType {
   CREATE = 'Create',
@@ -13,20 +13,21 @@ export enum ActionType {
 
 export interface IngredientModalProps {
   initName?: string;
-  initUnit?: string;
+  initUnit?: Unit;
   action: ActionType;
-  onPress: (name: string, unit: string) => void;
+  onPress: (name: string, unit: Unit) => void;
 }
 
 export const IngredientModal = (props: IngredientModalProps) => {
-  const [name, setName] = useState(props.initName ?? '');
-  const [unit, setUnit] = useState(props.initUnit ?? '');
+  const [name, setName] = useState<string>(props.initName ?? '');
+  const [unit, setUnit] = useState<string>(
+    props.initUnit ? fromUnit(props.initUnit) : '');
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const onSubmit = (onClose: () => void) => {
-    if (name && unit) {
-      props.onPress(name, unit);
+    if (name) {
+      props.onPress(name, toUnit(unit));
       onClose();
       switch (props.action) {
         case ActionType.CREATE:
