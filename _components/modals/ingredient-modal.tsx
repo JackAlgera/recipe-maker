@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { CreateButton, EditButton } from '../inputs/buttons';
 import { GenericModalFooter } from './generic-modal-footer';
 import { CustomInput } from '../inputs/inputs';
+import { Select, SelectItem } from '@nextui-org/react';
+import { UNITS } from '../models/models';
 
 export enum ActionType {
   CREATE = 'Create',
@@ -11,25 +13,29 @@ export enum ActionType {
 
 export interface IngredientModalProps {
   initName?: string;
+  initUnit?: string;
   action: ActionType;
-  onPress: (name: string) => void;
+  onPress: (name: string, unit: string) => void;
 }
 
 export const IngredientModal = (props: IngredientModalProps) => {
   const [name, setName] = useState(props.initName ?? '');
+  const [unit, setUnit] = useState(props.initUnit ?? '');
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const onSubmit = (onClose: () => void) => {
-    if (name) {
-      props.onPress(name);
+    if (name && unit) {
+      props.onPress(name, unit);
       onClose();
       switch (props.action) {
         case ActionType.CREATE:
           setName('');
+          setUnit('');
           break;
         case ActionType.UPDATE:
           setName(name);
+          setUnit(unit)
           break;
       }
     }
@@ -70,6 +76,20 @@ export const IngredientModal = (props: IngredientModalProps) => {
                   placeholder='Choose ingredient name'
                   value={name}
                   onChange={(event) => setName(event.target.value)} />
+                <Select
+                  isRequired
+                  label="Unit"
+                  variant="bordered"
+                  fullWidth
+                  placeholder="Select unit"
+                  value={unit}
+                  onChange={(event) => setUnit(event.target.value)}
+                >
+                  {UNITS.map((u) =>
+                    <SelectItem aria-label={`Select ${u}`} key={u} value={u}>
+                      {u}
+                    </SelectItem>)}
+                </Select>
               </ModalBody>
               <GenericModalFooter createLabel={props.action} onSubmit={onSubmit} onClose={onClose} />
             </form>

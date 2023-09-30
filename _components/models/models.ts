@@ -1,12 +1,8 @@
-export type Unit = 'g' | 'mL' | 'L' | 'mg' | 'kg' | null | undefined;
-
-export enum UnitE {
-  MILLIGRAM = 'mg',
-  GRAM = 'g',
-  KILOGRAM = 'kg',
-  MILLILITER = 'mL',
-  LITER = 'L'
-}
+export const UNITS = [
+  'mL',
+  'g',
+  'x'
+];
 
 export interface RecipeDao {
   uuid: string;
@@ -17,21 +13,21 @@ export interface RecipeDao {
   created_at: string;
 }
 
+export interface Recipe extends RecipeDao {
+  ingredients: Ingredient[];
+}
+
 export interface IngredientDao {
   uuid: string;
   name: string;
   created_at: string;
+  unit: string;
 }
 
-export interface Recipe {
-  recipe: RecipeDao;
-  ingredients: Ingredient[];
-}
-
-export interface Ingredient {
-  uuid: string;
-  name: string;
-  created_at: string;
+export interface Ingredient extends IngredientDao {
   quantity: number;
-  unit: Unit;
+}
+
+export interface PlannedRecipe extends Recipe {
+  times: number;
 }

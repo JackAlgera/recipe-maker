@@ -2,35 +2,32 @@ import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from '@nex
 import { Select, SelectItem } from '@nextui-org/react';
 import { useState } from 'react';
 import { CreateButton } from '../inputs/buttons';
-import { IngredientDao, Unit, UnitE } from '../models/models';
+import { IngredientDao } from '../models/models';
 import { GenericModalFooter } from './generic-modal-footer';
 import { CustomInput } from '../inputs/inputs';
 
 export interface RecipeIngredientModalProps {
   initName?: string;
-  onPress: (ingredient: IngredientDao, quantity: number, unit: Unit) => void;
+  onPress: (ingredient: IngredientDao, quantity: number) => void;
   availableIngredients: IngredientDao[];
 }
 
 export const RecipeIngredientModal = (props: RecipeIngredientModalProps) => {
   const [ingredientUuid, setIngredientUuid] = useState<string>('');
   const [quantity, setQuantity] = useState('');
-  const [unit, setUnit] = useState('')
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   const onSubmit = (onClose: () => void) => {
-    if (ingredientUuid && quantity && unit) {
+    if (ingredientUuid && quantity) {
       props.onPress(
         props.availableIngredients
           .find((ingredient) => ingredient.uuid === ingredientUuid)!,
-        parseInt(quantity),
-        unit as Unit
+        parseInt(quantity)
       );
       onClose();
       setIngredientUuid('');
       setQuantity('');
-      setUnit('');
     }
   }
 
@@ -65,20 +62,6 @@ export const RecipeIngredientModal = (props: RecipeIngredientModalProps) => {
                   value={quantity}
                   type='number'
                   onChange={(event) => setQuantity(event.target.value)} />
-                <Select
-                  isRequired
-                  label="Unit"
-                  variant="bordered"
-                  fullWidth
-                  placeholder="Select unit"
-                  value={unit}
-                  onChange={(event) => setUnit(event.target.value)}
-                >
-                  {Object.values(UnitE).map((unit) =>
-                    <SelectItem aria-label={`Select ${unit}`} key={unit} value={unit}>
-                      {unit}
-                    </SelectItem>)}
-                </Select>
               </ModalBody>
               <GenericModalFooter createLabel='Add' onSubmit={onSubmit} onClose={onClose} />
             </form>

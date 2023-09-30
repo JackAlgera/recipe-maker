@@ -13,38 +13,69 @@ export interface Database {
         Row: {
           created_at: string
           name: string
+          unit: Database["public"]["Enums"]["unit_type"]
           uuid: string
         }
         Insert: {
           created_at?: string
           name: string
+          unit?: Database["public"]["Enums"]["unit_type"]
           uuid?: string
         }
         Update: {
           created_at?: string
           name?: string
+          unit?: Database["public"]["Enums"]["unit_type"]
           uuid?: string
         }
         Relationships: []
+      }
+      planned_recipes: {
+        Row: {
+          created_on: string | null
+          is_done: boolean | null
+          recipe_uuid: string
+          times: number | null
+          user_id: string
+        }
+        Insert: {
+          created_on?: string | null
+          is_done?: boolean | null
+          recipe_uuid: string
+          times?: number | null
+          user_id: string
+        }
+        Update: {
+          created_on?: string | null
+          is_done?: boolean | null
+          recipe_uuid?: string
+          times?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "planned_recipes_recipe_uuid_fkey"
+            columns: ["recipe_uuid"]
+            referencedRelation: "recipes"
+            referencedColumns: ["uuid"]
+          }
+        ]
       }
       recipe_ingredients: {
         Row: {
           ingredient_uuid: string
           quantity: number
           recipe_uuid: string
-          unit: Database["public"]["Enums"]["unit_type"] | null
         }
         Insert: {
           ingredient_uuid: string
           quantity: number
           recipe_uuid: string
-          unit?: Database["public"]["Enums"]["unit_type"] | null
         }
         Update: {
           ingredient_uuid?: string
           quantity?: number
           recipe_uuid?: string
-          unit?: Database["public"]["Enums"]["unit_type"] | null
         }
         Relationships: [
           {
@@ -96,7 +127,7 @@ export interface Database {
       [_ in never]: never
     }
     Enums: {
-      unit_type: "L" | "mL" | "g" | "mg" | "kg"
+      unit_type: "mL" | "g" | "x"
     }
     CompositeTypes: {
       [_ in never]: never

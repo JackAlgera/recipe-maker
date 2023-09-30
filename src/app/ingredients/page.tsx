@@ -28,8 +28,8 @@ export default function Page() {
     getKey: item => item.uuid,
   });
 
-  const onCreate = (name: string) => {
-    createIngredient(name)
+  const onCreate = (name: string, unit: string) => {
+    createIngredient(name, unit)
       .then((ingredient: IngredientDao) => list.append(ingredient));
   }
 
@@ -48,13 +48,16 @@ export default function Page() {
     switch (columnKey) {
       case 'name':
         return <>{ingredient.name}</>;
+      case 'unit':
+        return <>{ingredient.unit}</>;
       case 'actions':
         return (
           <div className="flex">
             <IngredientModal
               action={ActionType.UPDATE}
               initName={ingredient.name}
-              onPress={(name: string) => onUpdate({ ...ingredient, name: name })} />
+              initUnit={ingredient.unit}
+              onPress={(name: string, unit: string) => onUpdate({ ...ingredient, name: name, unit: unit })} />
             <DeleteButton onDelete={() => onDelete(ingredient.uuid)} />
           </div>
         );
@@ -78,6 +81,7 @@ export default function Page() {
             fullWidth={false}>
             <TableHeader>
               <TableColumn key='name' allowsSorting width={COLUMN_SIZE * 2}>Name</TableColumn>
+              <TableColumn key='unit' allowsSorting width={COLUMN_SIZE}>Unit</TableColumn>
               <TableColumn key='actions' width={COLUMN_SIZE}>Actions</TableColumn>
             </TableHeader>
             <TableBody items={list.items}>

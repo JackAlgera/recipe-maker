@@ -24,7 +24,7 @@ export default function Page({ params }: { params: { uuid: string }}) {
   let ingredientsList = useAsyncList<Ingredient>({
     async load() {
         const newRecipe = await fetchRecipeWithIngredients(params.uuid);
-        setRecipe(newRecipe.recipe);
+        setRecipe(newRecipe);
         return { items: newRecipe.ingredients };
     },
     sort({ items, sortDescriptor }) {
