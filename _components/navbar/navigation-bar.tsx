@@ -41,11 +41,16 @@ export const NavigationBar = () => {
             Recipes
           </Link>
         </NavbarItem>
-        <NavbarItem isActive>
+        <NavbarItem>
           <Link href='/ingredients'>
             Ingredients
           </Link>
         </NavbarItem>
+        {user && <NavbarItem>
+          <Link href='/my-week'>
+            My week
+          </Link>
+        </NavbarItem>}
       </NavbarContent>
       <NavbarContent justify='end'>
         <NavbarItem>

@@ -77,6 +77,29 @@ export const fetchRecipeWithIngredients = async (recipeUuid: string): Promise<Re
   } as Recipe;
 };
 
+// export const fetchRecipesWithIngredients = async (userId: string): Promise<Recipe[]> => {
+//   const { data, error } = await supabase
+//     .from('recipes')
+//     .select(`*,
+//       ingredients:ingredients(*, quantity:recipe_ingredients(quantity))`)
+//     .eq('user_id', userId)
+//     .single();
+//
+//   if (error || !data) {
+//     notFound();
+//   }
+//
+//   return {
+//     name: data.name,
+//     uuid: data.uuid,
+//     description: data.description,
+//     created_at: data.created_at,
+//     is_public: data.is_public,
+//     user_id: data.user_id,
+//     ingredients: mapIngredients(data.ingredients),
+//   } as Recipe;
+// };
+
 export const removeIngredientFromRecipe = async (recipeUuid: string, ingredientUuid: string): Promise<void> => {
   const { error } = await supabase
     .from('recipe_ingredients')
@@ -216,7 +239,7 @@ const mapIngredients = (data: {
       uuid: d.uuid,
       created_at: d.created_at,
       quantity: d.quantity[0].quantity,
-      unit: d.unit ? d.unit[0] : null
+      unit: d.unit
     } as Ingredient
   });
 };
