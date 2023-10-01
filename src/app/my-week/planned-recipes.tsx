@@ -1,29 +1,35 @@
-import { PlannedRecipe } from '../../../_components/models/models';
+import { PlannedRecipe, RecipeDao } from '../../../_components/models/models';
 import React from 'react';
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/react';
 import { AsyncListData } from 'react-stately';
+import { DeleteButton } from '../../../_components/inputs/buttons';
+import { ClickableInput } from '../../../_components/inputs/inputs';
+import { PlannedRecipeModal } from '../../../_components/modals/planned-recipe-modal';
 
 export interface PlannedRecipesProps {
   recipes: AsyncListData<PlannedRecipe>;
+  availableRecipes: RecipeDao[];
+  onDeleteRecipe: (recipeUuid: string) => void;
+  onUpdateRecipe: (recipeUuid: string, times: number) => Promise<void>;
+  onCreateRecipe: (recipeUuid: string, times: number) => void;
 }
 
 const COLUMN_SIZE = 200;
 
 export const PlannedRecipes = (props: PlannedRecipesProps) => {
-  const renderCell = React.useCallback((ingredient: PlannedRecipe, columnKey: React.Key) => {
+  const renderCell = React.useCallback((recipe: PlannedRecipe, columnKey: React.Key) => {
     switch (columnKey) {
       case 'name':
-        return <>{ingredient.name}</>;
+        return <>{recipe.name}</>;
       case 'times':
-        return <>{ingredient.times}</>;
+        return <ClickableInput
+          initValue={recipe.times}
+          onChange={(value: number) => props.onUpdateRecipe(recipe.uuid, value)}
+        />;
       case 'actions':
         return (
           <div className="flex">
-            {/*<IngredientModal*/}
-            {/*  action={ActionType.UPDATE}*/}
-            {/*  initName={ingredient.name}*/}
-            {/*  onPress={(name: string) => onUpdate({ ...ingredient, name: name })} />*/}
-            {/*<DeleteButton onDelete={() => onDelete(ingredient.uuid)} />*/}
+            <DeleteButton onDelete={() => props.onDeleteRecipe(recipe.uuid)} />
           </div>
         );
       default:
@@ -37,7 +43,9 @@ export const PlannedRecipes = (props: PlannedRecipesProps) => {
         <div className='flex w-8/12 flex-col'>
           <div className='flex items-center'>
             <p className='m-4 text-2xl'>Recipes</p>
-            {/*{user && <IngredientModal action={ActionType.CREATE} onPress={onCreate} />}*/}
+            <PlannedRecipeModal
+              availableRecipes={props.availableRecipes}
+              onPress={props.onCreateRecipe} />
           </div>
           <Table
             onSortChange={props.recipes.sort}

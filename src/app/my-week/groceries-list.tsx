@@ -36,12 +36,9 @@ export const GroceriesList = (props: GroceriesListProps) => {
       <div className='flex justify-center'>
         <div className='flex w-8/12 flex-col'>
           <div className='flex items-center'>
-            <p className='m-4 text-2xl'>Recipes</p>
-            {/*{user && <IngredientModal action={ActionType.CREATE} onPress={onCreate} />}*/}
+            <p className='m-4 text-2xl'>Ingredients</p>
           </div>
           <Table
-            // onSortChange={props.ingredients.sort}
-            // sortDescriptor={props.recipes.sortDescriptor}
             aria-label='Table ingredients'
             fullWidth={false}>
             <TableHeader>

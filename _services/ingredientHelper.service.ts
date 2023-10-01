@@ -1,15 +1,21 @@
 import { Ingredient, PlannedRecipe } from '../_components/models/models';
 
 export const flattenIngredients = (plannedRecipes: PlannedRecipe[]): Ingredient[] => {
-  const ingredients = plannedRecipes
-    .flatMap((recipe) => recipe.ingredients);
   const ingredientMap = new Map<String, Ingredient>();
 
-  ingredients.forEach(ingredient => {
-    const uuid = ingredient.uuid;
-    ingredientMap.set(uuid, !ingredientMap.has(uuid) ?
-      ingredient : mergeIngredients(ingredient, ingredientMap.get(uuid)!));
-  });
+  plannedRecipes.forEach((plannedRecipe) => {
+    plannedRecipe.ingredients.forEach(ingredient => {
+      const uuid = ingredient.uuid;
+      const updateIngredient = {
+        ...ingredient,
+        quantity: ingredient.quantity * plannedRecipe.times
+      };
+
+      ingredientMap.set(uuid, !ingredientMap.has(uuid) ?
+        updateIngredient :
+        mergeIngredients(updateIngredient, ingredientMap.get(uuid)!));
+    });
+  })
 
   return Array.from(ingredientMap.values());
 }

@@ -77,29 +77,6 @@ export const fetchRecipeWithIngredients = async (recipeUuid: string): Promise<Re
   } as Recipe;
 };
 
-// export const fetchRecipesWithIngredients = async (userId: string): Promise<Recipe[]> => {
-//   const { data, error } = await supabase
-//     .from('recipes')
-//     .select(`*,
-//       ingredients:ingredients(*, quantity:recipe_ingredients(quantity))`)
-//     .eq('user_id', userId)
-//     .single();
-//
-//   if (error || !data) {
-//     notFound();
-//   }
-//
-//   return {
-//     name: data.name,
-//     uuid: data.uuid,
-//     description: data.description,
-//     created_at: data.created_at,
-//     is_public: data.is_public,
-//     user_id: data.user_id,
-//     ingredients: mapIngredients(data.ingredients),
-//   } as Recipe;
-// };
-
 export const removeIngredientFromRecipe = async (recipeUuid: string, ingredientUuid: string): Promise<void> => {
   const { error } = await supabase
     .from('recipe_ingredients')
@@ -224,6 +201,48 @@ export const fetchPlannedRecipes = async (userId: string): Promise<PlannedRecipe
       ingredients: mapIngredients(d.recipe!.ingredients)
     } as PlannedRecipe
   });
+};
+
+export const deletePlannedRecipe = async (userId: string, recipeUuid: string): Promise<void> => {
+  const { data, error } = await supabase
+    .from('planned_recipes')
+    .delete()
+    .eq('recipe_uuid', recipeUuid)
+    .eq('user_id', userId);
+
+  console.log(data, error);
+
+  if (error) {
+    notFound();
+  }
+};
+
+export const createPlannedRecipe = async (recipeUuid: string, userId: string, times: number): Promise<void> => {
+  const { data, error } = await supabase
+    .from('planned_recipes')
+    .insert({
+      recipe_uuid: recipeUuid,
+      user_id: userId,
+      times: times
+    })
+    .select()
+    .single();
+
+  if (error || !data) {
+    notFound();
+  }
+};
+
+export const updatePlannedRecipe = async (userId: string, recipeUuid: string, times: number): Promise<void> => {
+  const { data, error } = await supabase
+    .from('planned_recipes')
+    .update({ times: times })
+    .eq('recipe_uuid', recipeUuid)
+    .eq('user_id', userId);
+  
+  if (error) {
+    notFound();
+  }
 };
 
 const mapIngredients = (data: {

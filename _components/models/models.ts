@@ -40,6 +40,14 @@ export interface Ingredient extends IngredientDao {
   quantity: number;
 }
 
+export interface PlannedRecipeDao {
+  created_on: string | null;
+  is_done: boolean | null;
+  recipe_uuid: string;
+  times: number | null;
+  user_id: string;
+}
+
 export interface PlannedRecipe extends Recipe {
   times: number;
 }
